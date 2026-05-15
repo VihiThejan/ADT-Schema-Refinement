@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q1 Answer Script – Schema Refinement</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --surface2: #f3f2ee;
+    --ink: #18181a;
+    --ink2: #48484f;
+    --ink3: #88888f;
+    --blue: #1d4ed8;
+    --blue-light: #eff6ff;
+    --blue-mid: #dbeafe;
+    --green: #15803d;
+    --green-light: #f0fdf4;
+    --green-mid: #bbf7d0;
+    --amber: #92400e;
+    --amber-light: #fffbeb;
+    --amber-mid: #fde68a;
+    --red: #991b1b;
+    --red-light: #fef2f2;
+    --red-mid: #fecaca;
+    --purple: #6b21a8;
+    --purple-light: #faf5ff;
+    --purple-mid: #e9d5ff;
+    --teal: #0f766e;
+    --teal-light: #f0fdfa;
+    --teal-mid: #99f6e4;
+    --border: #e5e5e3;
+    --border2: #d1d1ce;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.75; }
+
+  /* ─── COVER ─── */
+  .cover {
+    background: #18181a;
+    color: #f5f5f0;
+    padding: 56px 48px 48px;
+  }
+  .cover-chip {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 99px;
+    padding: 3px 14px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: #a0a0a8;
+  }
+  .cover h1 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .cover p { color: #a0a0a8; font-size: 15px; max-width: 560px; }
+  .cover-meta {
+    display: flex; flex-wrap: wrap; gap: 24px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+    color: #70707a;
+  }
+  .cover-meta span { color: #c0c0c8; }
+
+  /* ─── TOC ─── */
+  .toc-wrap { background: var(--surface); border-bottom: 1px solid var(--border); padding: 28px 48px; }
+  .toc-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); margin-bottom: 14px; }
+  .toc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px 32px; }
+  .toc-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--border); }
+  .toc-year { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px; flex-shrink: 0; }
+  .y18 { background: #dcfce7; color: #15803d; }
+  .y19 { background: #dbeafe; color: #1d4ed8; }
+  .y22 { background: #ede9fe; color: #6b21a8; }
+  .y23 { background: #fef3c7; color: #92400e; }
+  .y24 { background: #fce7f3; color: #9d174d; }
+  .toc-desc { font-size: 12px; color: var(--ink2); }
+
+  /* ─── LAYOUT ─── */
+  .main { max-width: 900px; margin: 0 auto; padding: 0 32px 80px; }
+
+  /* ─── PAPER BLOCK ─── */
+  .paper {
+    margin-top: 52px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .paper-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .paper-year {
+    font-size: 13px; font-weight: 600;
+    padding: 3px 12px; border-radius: 99px;
+  }
+  .paper-title {
+    font-family: 'Source Serif 4', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--ink);
+  }
+  .paper-marks { margin-left: auto; font-size: 12px; color: var(--ink3); }
+  .paper-body { padding: 28px 32px; }
+
+  /* ─── QUESTION BLOCK ─── */
+  .q-block { margin-bottom: 40px; }
+  .q-block:last-child { margin-bottom: 0; }
+
+  .q-banner {
+    display: flex; align-items: flex-start; gap: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .q-letter {
+    flex-shrink: 0;
+    width: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+    padding: 14px 0;
+    border-right: 1px solid var(--border);
+    color: var(--ink3);
+  }
+  .q-text { padding: 12px 16px; font-size: 13px; color: var(--ink2); line-height: 1.65; flex: 1; }
+  .q-marks-badge {
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin: 10px 12px 0 0;
+    background: var(--ink);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+
+  /* ─── ANSWER ─── */
+  .answer-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--green); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+  }
+  .answer-label::before { content: ''; display: block; width: 16px; height: 2px; background: var(--green); }
+
+  .step-list { margin: 0 0 16px; }
+  .step-item {
+    display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0; width: 24px; height: 24px;
+    background: var(--blue); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; margin-top: 1px;
+  }
+  .step-content { flex: 1; font-size: 13px; color: var(--ink2); line-height: 1.65; }
+  .step-title { font-weight: 600; color: var(--ink); margin-bottom: 3px; font-size: 13px; }
+
+  .code {
+    font-family: 'JetBrains Mono', monospace;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 10px 0;
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+  .code .cmt { color: #6c7086; }
+  .code .key { color: #a6e3a1; font-weight: 700; }
+  .code .op { color: #89b4fa; }
+  .code .val { color: #f38ba8; }
+  .code .ok { color: #a6e3a1; }
+  .code .err { color: #f38ba8; }
+  .code .hl { color: #f9e2af; }
+
+  .result-box {
+    border-radius: 8px; padding: 12px 16px; margin: 10px 0;
+    font-size: 13px; line-height: 1.65;
+  }
+  .result-box.correct { background: var(--green-light); border: 1px solid var(--green-mid); color: var(--ink); }
+  .result-box.correct .rb-label { color: var(--green); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .result-box.info { background: var(--blue-light); border: 1px solid var(--blue-mid); color: var(--ink); }
+  .result-box.info .rb-label { color: var(--blue); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .result-box.warn { background: var(--amber-light); border: 1px solid var(--amber-mid); color: var(--ink); }
+  .result-box.warn .rb-label { color: var(--amber); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+
+  .inline-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--blue);
+  }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12.5px; }
+  th { background: var(--surface2); border: 1px solid var(--border); padding: 7px 12px; font-weight: 600; text-align: left; color: var(--ink); }
+  td { border: 1px solid var(--border); padding: 6px 12px; color: var(--ink2); }
+  tr:nth-child(even) td { background: var(--bg); }
+
+  p { margin-bottom: 10px; font-size: 13px; color: var(--ink2); line-height: 1.7; }
+  strong { color: var(--ink); }
+
+  .marks-tip {
+    background: #18181a; color: #a0a0a8;
+    border-radius: 8px; padding: 12px 16px; margin-top: 14px;
+    font-size: 12px; line-height: 1.6;
+  }
+  .marks-tip strong { color: #f9e2af; }
+
+  @media(max-width:600px){
+    .cover { padding: 36px 20px 32px; }
+    .toc-wrap { padding: 20px; }
+    .main { padding: 0 16px 60px; }
+    .paper-body { padding: 20px 16px; }
+    .cover h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-chip">IT5020 · Advanced Database Technologies</div>
+  <h1>Q1 Schema Refinement<br>Complete Answer Script</h1>
+  <p>Full model answers for all 5 past papers (2018–2024), with step-by-step workings, algorithms shown in full, and marks guidance.</p>
+  <div class="cover-meta">
+    <div>Papers covered: <span>2018 · 2019 · 2022 · 2023 · 2024</span></div>
+    <div>Topic: <span>Schema Refinement / Normalization</span></div>
+    <div>Lecture: <span>Lec 3 &amp; 4</span></div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-wrap">
+  <div class="toc-label">Jump to paper</div>
+  <div class="toc-grid">
+    <div class="toc-item"><span class="toc-year y18">2018</span><span class="toc-desc">R(A,B,C,D) · FD closures · 3NF/BCNF · FD equivalence</span></div>
+    <div class="toc-item"><span class="toc-year y19">2019</span><span class="toc-desc">CUSTOMER · key · 2NF→3NF · FD equivalence</span></div>
+    <div class="toc-item"><span class="toc-year y22">2022</span><span class="toc-desc">EMP_DEPT · 3NF · closures · dep-preservation · minimal cover</span></div>
+    <div class="toc-item"><span class="toc-year y23">2023</span><span class="toc-desc">EMP_DEPT (same) · 3NF · closures · BCNF dep · minimal cover</span></div>
+    <div class="toc-item"><span class="toc-year y24">2024</span><span class="toc-desc">R(SID,CID,Instr,Room,Time) · candidate keys · BCNF · minimal</span></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ═══════════════════════════════════════════════ 2018 ═══ -->
+<div class="paper" id="p2018">
+  <div class="paper-header">
+    <span class="toc-year y18">2018</span>
+    <span class="paper-title">Q1 – Schema Refinement</span>
+    <span class="paper-marks">15 marks</span>
+  </div>
+  <div class="paper-body">
+
+    <!-- GIVEN -->
+    <div class="result-box info" style="margin-bottom:20px;">
+      <div class="rb-label">Given</div>
+      R(A, B, C, D) &nbsp;·&nbsp; F = { AB→C, C→D, D→B }
+    </div>
+
+    <!-- Q a -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">a</div>
+        <div class="q-text">Find all the nontrivial FDs that follow from F. Consider only FDs with a single attribute on the right side.</div>
+        <div class="q-marks-badge">3 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p>Use transitivity and augmentation on the given FDs to derive all implied FDs:</p>
+      <div class="code">
+<span class="cmt">// Given:</span>
+AB <span class="op">→</span> C
+C  <span class="op">→</span> D
+D  <span class="op">→</span> B
+
+<span class="cmt">// Apply Transitivity: AB→C, C→D  implies</span>
+AB <span class="op">→</span> D
+
+<span class="cmt">// Apply Transitivity: AB→D, D→B  implies</span>
+AB <span class="op">→</span> B   <span class="cmt">// trivial (B is in LHS) — skip</span>
+
+<span class="cmt">// Apply Transitivity: C→D, D→B  implies</span>
+C  <span class="op">→</span> B
+
+<span class="cmt">// Apply Transitivity: AB→C, C→B  implies (already have AB→B trivial)</span>
+<span class="cmt">// Also: AB→B is trivial; AB→A is trivial — skip all trivial</span>
+
+<span class="cmt">// Apply: D→B already given. AC→? : AC→C (trivial), with C→D gives AC→D</span>
+AC <span class="op">→</span> D    <span class="cmt">// by augmentation (A added to C→D)</span>
+AC <span class="op">→</span> B    <span class="cmt">// by transitivity: AC→D, D→B</span>
+
+<span class="cmt">// AD→? : AD→D (trivial), with D→B gives AD→B</span>
+AD <span class="op">→</span> B    <span class="cmt">// by augmentation (A added to D→B)</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">All nontrivial derived FDs (single RHS)</div>
+        AB→C, AB→D, C→D, C→B, D→B, AC→D, AC→B, AD→B (and augmented variants)
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q b -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">b</div>
+        <div class="q-text">Find all the keys that follow from the given FDs, showing how you found them.</div>
+        <div class="q-marks-badge">2 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p>Compute the attribute closure for candidate sets. A set X is a key if X⁺ = {A,B,C,D} and no proper subset also gives all attributes.</p>
+      <div class="code">
+<span class="cmt">// Try single attributes:</span>
+{A}⁺: only A (no FD has just A on LHS) = {A}   <span class="err">✗ not a key</span>
+{B}⁺: only B                            = {B}   <span class="err">✗ not a key</span>
+{C}⁺: C→D, D→B → {C,D,B}              = {C,D,B} <span class="err">✗ missing A</span>
+{D}⁺: D→B → {D,B}                     = {D,B}  <span class="err">✗ not a key</span>
+
+<span class="cmt">// Try pairs:</span>
+{A,B}⁺: AB→C → {A,B,C}, C→D → {A,B,C,D}  = ALL <span class="ok">✓ superkey!</span>
+  Is any subset a key? {A}⁺ = {A} ✗, {B}⁺ = {B} ✗
+  → <span class="key">AB is a CANDIDATE KEY</span>
+
+{A,C}⁺: AC→D (from C→D+augment) → {A,C,D}, D→B → {A,C,D,B} = ALL <span class="ok">✓ superkey!</span>
+  Is any subset a key? {A}⁺={A}✗, {C}⁺={C,D,B}✗ (missing A)
+  → <span class="key">AC is a CANDIDATE KEY</span>
+
+{A,D}⁺: D→B → {A,D,B}, no more... = {A,D,B} <span class="err">✗ missing C</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">Candidate Keys</div>
+        <strong>AB</strong> and <strong>AC</strong> are the only candidate keys.
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q c -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">c</div>
+        <div class="q-text">Is R in 3NF? Give reasons for your conclusion.</div>
+        <div class="q-marks-badge">2 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p><strong>Prime attributes</strong> (in any candidate key AB or AC): A, B, C<br>
+      <strong>Nonprime attributes</strong>: D only</p>
+      <div class="code">
+<span class="cmt">// 3NF check: for every FD X→Y where Y is nonprime, X must be a superkey OR Y is prime</span>
+
+AB <span class="op">→</span> C : C is prime ✓
+C  <span class="op">→</span> D : C is not a superkey. D is nonprime. <span class="err">→ Check: is C a superkey? {C}⁺ = {C,D,B} ≠ all attrs. NO.</span>
+               <span class="cmt">// BUT in 3NF, we allow X→A if X is superkey OR A is prime</span>
+               <span class="cmt">// D is nonprime, C is not a superkey → VIOLATION of 3NF? Let's verify...</span>
+D  <span class="op">→</span> B : B is prime ✓ (B is in candidate key AB)
+      </div>
+      <div class="result-box warn">
+        <div class="rb-label">Conclusion</div>
+        R <strong>is in 3NF</strong>. For C→D: although C is not a superkey, we must check if this violates 3NF. D is a nonprime attribute and C is not a superkey — this IS a violation. <strong>R is NOT in 3NF</strong> because C→D exists where C is not a superkey and D is nonprime.
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q d -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">d</div>
+        <div class="q-text">Is R in BCNF? If not, convert it to BCNF.</div>
+        <div class="q-marks-badge">3 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p><strong>BCNF rule:</strong> For every nontrivial FD X→Y, X must be a superkey.</p>
+      <div class="code">
+<span class="cmt">// Candidate keys: AB, AC. Superkeys include AB, AC, ABC, ABD, ACD, ABCD etc.</span>
+
+AB <span class="op">→</span> C : AB is a superkey ✓
+C  <span class="op">→</span> D : C is NOT a superkey <span class="err">✗ BCNF VIOLATION</span>
+D  <span class="op">→</span> B : D is NOT a superkey <span class="err">✗ BCNF VIOLATION</span>
+
+<span class="cmt">// Decompose for C→D (the first violation):</span>
+<span class="cmt">// Rule: decompose R into (R - Y) and (XY)</span>
+<span class="cmt">// R = ABCD, X=C, Y=D</span>
+R1 = R - {D} = <span class="key">ABC</span>  (retains FD AB→C)
+R2 = {C,D}  = <span class="key">CD</span>   (retains FD C→D)
+
+<span class="cmt">// Check R1(A,B,C): FDs that apply: AB→C. Is AB a superkey of R1? {A,B,C} = all of R1 ✓ BCNF</span>
+<span class="cmt">// Check R2(C,D):   FDs that apply: C→D.  Is C a superkey of R2? {C,D} = all of R2 ✓ BCNF</span>
+
+<span class="cmt">// Note: D→B is lost in this decomposition (not dependency-preserving)</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">BCNF Decomposition</div>
+        <strong>R1(A, B, C)</strong> with FD: AB→C<br>
+        <strong>R2(C, D)</strong> with FD: C→D<br>
+        Both are in BCNF. Note: D→B is not preserved (BCNF does not guarantee dep-preservation).
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q e — FD equivalence -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">e</div>
+        <div class="q-text">Check whether F = {A→C, AC→D, E→AD, E→H} and G = {A→CD, E→ACH} are equivalent.</div>
+        <div class="q-marks-badge">5 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p>To show equivalence, prove F⁺ = G⁺ by showing <strong>F covers G</strong> AND <strong>G covers F</strong>.</p>
+      <div class="code">
+<span class="cmt">// ── Prove G is covered by F (compute X⁺ using F for each FD in G) ──</span>
+
+{A}⁺ w.r.t. F:
+  Start: {A}
+  A→C: add C → {A,C}
+  AC→D: AC ⊆ closure → add D → {A,C,D}
+  No more. {A}⁺ = {A,C,D}
+  → covers A→CD in G? CD ⊆ {A,C,D} <span class="ok">✓</span>
+
+{E}⁺ w.r.t. F:
+  Start: {E}
+  E→AD: add A,D → {E,A,D}
+  E→H:  add H   → {E,A,D,H}
+  A→C:  add C   → {E,A,D,H,C}
+  AC→D: already have D
+  {E}⁺ = {E,A,D,H,C}
+  → covers E→ACH in G? ACH ⊆ {E,A,D,H,C} <span class="ok">✓</span>
+
+<span class="cmt">// G is covered by F ✓</span>
+
+<span class="cmt">// ── Prove F is covered by G (compute X⁺ using G for each FD in F) ──</span>
+
+{A}⁺ w.r.t. G:
+  Start: {A}
+  A→CD: add C,D → {A,C,D}
+  {A}⁺ = {A,C,D}
+  → covers A→C? C ⊆ {A,C,D} <span class="ok">✓</span>
+
+{A,C}⁺ w.r.t. G:
+  Start: {A,C}
+  A→CD: add D → {A,C,D}
+  {AC}⁺ = {A,C,D}
+  → covers AC→D? D ⊆ {A,C,D} <span class="ok">✓</span>
+
+{E}⁺ w.r.t. G:
+  Start: {E}
+  E→ACH: add A,C,H → {E,A,C,H}
+  A→CD:  add D     → {E,A,C,H,D}
+  {E}⁺ = {E,A,C,H,D}
+  → covers E→AD? AD ⊆ {E,A,C,H,D} <span class="ok">✓</span>
+  → covers E→H?  H  ⊆ {E,A,C,H,D} <span class="ok">✓</span>
+
+<span class="cmt">// F is covered by G ✓</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">Conclusion</div>
+        Since F covers G and G covers F, <strong>F and G are equivalent</strong> (F⁺ = G⁺). ✓
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ 2019 ═══ -->
+<div class="paper" id="p2019">
+  <div class="paper-header">
+    <span class="toc-year y19">2019</span>
+    <span class="paper-title">Q1 – Schema Refinement</span>
+    <span class="paper-marks">15 marks</span>
+  </div>
+  <div class="paper-body">
+
+    <div class="result-box info" style="margin-bottom:20px;">
+      <div class="rb-label">Given</div>
+      CUSTOMER(NAME, STREET, CITY, STATE, ZIP) abbreviated as (N, R, C, T, Z)<br>
+      F = { N→RCT, RCT→Z, Z→CT }
+    </div>
+
+    <!-- Q a -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">a</div>
+        <div class="q-text">What is the key for CUSTOMER? Use "attribute closure".</div>
+        <div class="q-marks-badge">4 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <div class="code">
+<span class="cmt">// Attributes: N, R, C, T, Z. Try N first (name is usually the key):</span>
+
+{N}⁺:
+  Start: {N}
+  N→RCT: add R,C,T → {N,R,C,T}
+  RCT→Z: RCT ⊆ closure → add Z → {N,R,C,T,Z}
+  Z→CT:  already have C,T
+  <span class="key">{N}⁺ = {N,R,C,T,Z} = ALL ATTRIBUTES</span> <span class="ok">✓ N is a superkey</span>
+
+<span class="cmt">// Is N minimal? Check if any proper subset of {N} is also a superkey:</span>
+<span class="cmt">// Only subsets are {} and {N} itself. {} gives nothing. So N IS minimal.</span>
+
+<span class="key">→ N (NAME) is the only Candidate Key</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">Key</div>
+        <strong>N (NAME)</strong> is the candidate key for CUSTOMER.
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q b -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">b</div>
+        <div class="q-text">Decompose CUSTOMER into 2NF, then 3NF relations.</div>
+        <div class="q-marks-badge">4 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p><strong>Key = N (single attribute)</strong>. With a single-attribute key, partial dependency is impossible → already in 2NF. Move directly to 3NF.</p>
+      <div class="code">
+<span class="cmt">// Identify transitive dependencies (non-prime → non-prime):</span>
+<span class="cmt">// N→RCT (direct) ✓</span>
+<span class="cmt">// N→RCT→Z means N→Z is TRANSITIVE (via RCT)</span>
+<span class="cmt">// Z→CT means Z→C and Z→T are transitive dependencies</span>
+
+<span class="cmt">// For 3NF: remove transitive deps by decomposing</span>
+
+<span class="cmt">// FD RCT→Z causes transitivity. Decompose:</span>
+R1 = CUSTOMER_ZIP(<span class="key">R,C,T</span>, Z)   <span class="cmt">// FD: RCT→Z</span>
+R2 = CUSTOMER_INFO(<span class="key">N</span>, R, C, T)  <span class="cmt">// FD: N→R, N→C, N→T</span>
+
+<span class="cmt">// Check R1: Is RCT a superkey? {RCT}⁺ = {R,C,T,Z} = all of R1 ✓</span>
+<span class="cmt">// Now Z→CT in R1: Z is not a superkey of R1 → still violates 3NF!</span>
+<span class="cmt">// Further decompose R1:</span>
+
+R1a = ZIP_LOC(<span class="key">Z</span>, C, T)           <span class="cmt">// FD: Z→CT</span>
+R1b = CUST_ZIP(<span class="key">R,C,T</span>, Z) → simplify to CUST_ADDR(<span class="key">R,C,T</span>, Z)
+     <span class="cmt">// But RCT→Z and Z→CT overlap... merge carefully:</span>
+
+<span class="cmt">// Cleaner 3NF decomposition:</span>
+R1 = (<span class="key">N</span>, R)                     <span class="cmt">// N→R</span>
+R2 = (<span class="key">N</span>, C, T) → but N→CT and Z→CT...</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">3NF Decomposition</div>
+        <strong>R1: CUSTOMER_BASE(<u>N</u>, R, C, T)</strong> — FD: N→RCT<br>
+        <strong>R2: ZIP_INFO(<u>RCT</u>, Z)</strong> — FD: RCT→Z<br>
+        <strong>R3: ZIP_LOCATION(<u>Z</u>, C, T)</strong> — FD: Z→CT<br><br>
+        This removes all transitive dependencies. All three are in 3NF.
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q c -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">c</div>
+        <div class="q-text">Check whether F = {N→RCT, RCT→Z, Z→CT} and G = {N→R, N→C, N→T, RCT→Z, Z→C, Z→T} are equivalent.</div>
+        <div class="q-marks-badge">7 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <div class="code">
+<span class="cmt">// ── Prove G is covered by F ──</span>
+
+{N}⁺ w.r.t. F:
+  N→RCT → {N,R,C,T}; RCT→Z → {N,R,C,T,Z}
+  {N}⁺ = {N,R,C,T,Z}
+  → covers N→R? <span class="ok">✓</span>  N→C? <span class="ok">✓</span>  N→T? <span class="ok">✓</span>
+
+{R,C,T}⁺ w.r.t. F:
+  RCT→Z → {R,C,T,Z}
+  → covers RCT→Z? <span class="ok">✓</span>
+
+{Z}⁺ w.r.t. F:
+  Z→CT → {Z,C,T}
+  → covers Z→C? <span class="ok">✓</span>  Z→T? <span class="ok">✓</span>
+
+<span class="cmt">// G is covered by F ✓</span>
+
+<span class="cmt">// ── Prove F is covered by G ──</span>
+
+{N}⁺ w.r.t. G:
+  N→R,N→C,N→T → {N,R,C,T}; RCT→Z → {N,R,C,T,Z}
+  → covers N→RCT? <span class="ok">✓</span>
+
+{R,C,T}⁺ w.r.t. G:
+  RCT→Z → {R,C,T,Z}
+  → covers RCT→Z? <span class="ok">✓</span>
+
+{Z}⁺ w.r.t. G:
+  Z→C, Z→T → {Z,C,T}
+  → covers Z→CT? <span class="ok">✓</span>
+
+<span class="cmt">// F is covered by G ✓</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">Conclusion</div>
+        <strong>F and G are equivalent</strong>. Both cover each other, therefore F⁺ = G⁺. ✓
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ 2022 ═══ -->
+<div class="paper" id="p2022">
+  <div class="paper-header">
+    <span class="toc-year y22">2022</span>
+    <span class="paper-title">Q1 – Schema Refinement</span>
+    <span class="paper-marks">20 marks</span>
+  </div>
+  <div class="paper-body">
+
+    <div class="result-box info" style="margin-bottom:20px;">
+      <div class="rb-label">Given</div>
+      EMP_DEPT(ENAME, SSN, BDATE, ADD, DNUM, DNAME, DMGR)<br>
+      F = { SSN→{ENAME, BDATE, ADD, DNUM}, DNUM→{DNAME, DMGR} }
+    </div>
+
+    <!-- Q a -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">a</div>
+        <div class="q-text">Convert EMP_DEPT into 3rd Normal Form.</div>
+        <div class="q-marks-badge">2 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <div class="code">
+<span class="cmt">// Step 1: Identify the key. SSN determines all employee attrs and DNUM.</span>
+<span class="cmt">// DNUM determines DNAME, DMGR. So SSN→DNUM→DNAME is TRANSITIVE.</span>
+
+<span class="cmt">// Step 2: Remove transitive dependency DNUM→{DNAME,DMGR}</span>
+
+<span class="key">ED1: EMPLOYEE(SSN, ENAME, BDATE, ADD, DNUM)</span>
+     Key: SSN
+     FD:  SSN → {ENAME, BDATE, ADD, DNUM}
+
+<span class="key">ED2: DEPARTMENT(DNUM, DNAME, DMGR)</span>
+     Key: DNUM
+     FD:  DNUM → {DNAME, DMGR}
+
+<span class="cmt">// Both ED1 and ED2 are in 3NF ✓ (no transitive deps remain)</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">3NF Result</div>
+        <strong>ED1: EMPLOYEE(<u>SSN</u>, ENAME, BDATE, ADD, DNUM)</strong><br>
+        <strong>ED2: DEPARTMENT(<u>DNUM</u>, DNAME, DMGR)</strong>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q b -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">b</div>
+        <div class="q-text">Calculate the closures {SSN}⁺ and {DNUM}⁺ with respect to F.</div>
+        <div class="q-marks-badge">4 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <div class="code">
+<span class="cmt">// Algorithm: closure = X; repeat: if U⊆closure add V for each U→V in F</span>
+
+<span class="hl">Computing {SSN}⁺:</span>
+  Iteration 1: closure = {SSN}
+  Apply SSN→{ENAME,BDATE,ADD,DNUM}: ENAME,BDATE,ADD,DNUM all added
+    closure = {SSN, ENAME, BDATE, ADD, DNUM}
+  Iteration 2:
+  Apply DNUM→{DNAME,DMGR}: DNUM ⊆ closure → add DNAME, DMGR
+    closure = {SSN, ENAME, BDATE, ADD, DNUM, DNAME, DMGR}
+  Iteration 3: No new FDs can fire. STOP.
+
+  <span class="key">{SSN}⁺ = {SSN, ENAME, BDATE, ADD, DNUM, DNAME, DMGR} = ALL ATTRS</span>
+  → SSN is the candidate key ✓
+
+<span class="hl">Computing {DNUM}⁺:</span>
+  Iteration 1: closure = {DNUM}
+  Apply DNUM→{DNAME,DMGR}: add DNAME, DMGR
+    closure = {DNUM, DNAME, DMGR}
+  Iteration 2: SSN→... requires SSN in closure (not present). STOP.
+
+  <span class="key">{DNUM}⁺ = {DNUM, DNAME, DMGR}</span>
+  → DNUM is NOT a key (ENAME, BDATE, ADD, SSN are missing)
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q c -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">c</div>
+        <div class="q-text">What is dependency preservation? Review potential causes for losing it in BCNF. Justify with an example.</div>
+        <div class="q-marks-badge">4 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p><strong>Definition:</strong> A decomposition of R into relations R1, R2, … is dependency-preserving if every FD in F can be checked by examining only a single Ri (without needing a join). Formally: F⁺ = (F_R1 ∪ F_R2 ∪ …)⁺.</p>
+      <p><strong>Why BCNF may fail:</strong> When we decompose to fix a BCNF violation, the FD that caused the violation gets "split" across two relations, and it can no longer be verified without joining them.</p>
+      <div class="code">
+<span class="cmt">// Classic example: R(C, S, Z) with FDs: CS→Z, Z→C</span>
+<span class="cmt">// Candidate keys: CS and ZS (since Z→C, ZS→CS→Z, so ZS gives all)</span>
+<span class="cmt">// BCNF check: Z→C — is Z a superkey? {Z}⁺ = {Z,C} ≠ all attrs → VIOLATION</span>
+
+<span class="cmt">// Decompose for Z→C:</span>
+R1 = (Z, C)   <span class="cmt">// captures Z→C</span>
+R2 = (Z, S)   <span class="cmt">// to keep remaining attrs</span>
+
+<span class="cmt">// Check: CS→Z — is this FD preserved?</span>
+<span class="cmt">// C and S are in different relations (R1 has Z,C; R2 has Z,S)</span>
+<span class="cmt">// CS→Z CANNOT be checked in any single relation → NOT preserved!</span>
+
+<span class="err">→ BCNF decomposition loses the FD CS→Z</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">Conclusion</div>
+        BCNF can cause dependency loss when a violating FD's LHS attributes end up split across different decomposed relations. Unlike 3NF, BCNF does <strong>not</strong> guarantee dependency preservation.
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q d -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">d</div>
+        <div class="q-text">Is F minimal? If not, find a minimal set G equivalent to F. Prove equivalence.</div>
+        <div class="q-marks-badge">10 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p><strong>F = { SSN→{ENAME, BDATE, ADD, DNUM}, DNUM→{DNAME, DMGR} }</strong></p>
+      <p>F is <strong>NOT minimal</strong> because Rule 1 of minimality requires each FD to have a single attribute on the RHS. F has multi-attribute RHS.</p>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Step 1 — Split all RHS to single attributes</div>
+            <div class="code">
+SSN → ENAME
+SSN → BDATE
+SSN → ADD
+SSN → DNUM
+DNUM → DNAME
+DNUM → DMGR
+            </div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Step 2 — Minimize LHS (all single-attr LHS → no change needed)</div>
+            <div class="code"><span class="cmt">// All LHS are single attributes. Cannot reduce further. No change.</span></div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Step 3 — Remove redundant FDs</div>
+            <div class="code">
+<span class="cmt">// Check each FD: can we derive RHS from LHS using remaining FDs?</span>
+
+SSN→ENAME: remove it. {SSN}⁺ without SSN→ENAME = {SSN,BDATE,ADD,DNUM,DNAME,DMGR}
+  ENAME ∉ closure → <span class="ok">KEEP SSN→ENAME</span>
+
+SSN→BDATE: {SSN}⁺ without = {SSN,ENAME,ADD,DNUM,DNAME,DMGR}
+  BDATE ∉ closure → <span class="ok">KEEP</span>
+
+SSN→ADD: {SSN}⁺ without = {SSN,ENAME,BDATE,DNUM,DNAME,DMGR}
+  ADD ∉ closure → <span class="ok">KEEP</span>
+
+SSN→DNUM: {SSN}⁺ without = {SSN,ENAME,BDATE,ADD}
+  DNUM ∉ closure → <span class="ok">KEEP</span>
+
+DNUM→DNAME: {DNUM}⁺ without = {DNUM,DMGR}
+  DNAME ∉ closure → <span class="ok">KEEP</span>
+
+DNUM→DMGR: {DNUM}⁺ without = {DNUM,DNAME}
+  DMGR ∉ closure → <span class="ok">KEEP</span>
+
+<span class="cmt">// No FDs are redundant.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-box correct">
+        <div class="rb-label">Minimal Cover G</div>
+        G = { SSN→ENAME, SSN→BDATE, SSN→ADD, SSN→DNUM, DNUM→DNAME, DNUM→DMGR }
+      </div>
+
+      <p style="margin-top:14px;"><strong>Prove G ≡ F (equivalence proof):</strong></p>
+      <div class="code">
+<span class="cmt">// Prove F covered by G:</span>
+{SSN}⁺ w.r.t. G = {SSN,ENAME,BDATE,ADD,DNUM,DNAME,DMGR}
+→ covers SSN→{ENAME,BDATE,ADD,DNUM} ✓
+
+{DNUM}⁺ w.r.t. G = {DNUM,DNAME,DMGR}
+→ covers DNUM→{DNAME,DMGR} ✓
+
+<span class="cmt">// Prove G covered by F:</span>
+{SSN}⁺ w.r.t. F = {SSN,ENAME,BDATE,ADD,DNUM,DNAME,DMGR}
+→ covers SSN→ENAME, SSN→BDATE, SSN→ADD, SSN→DNUM ✓
+
+{DNUM}⁺ w.r.t. F = {DNUM,DNAME,DMGR}
+→ covers DNUM→DNAME, DNUM→DMGR ✓
+
+<span class="key">∴ F and G are equivalent ✓</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ 2023 ═══ -->
+<div class="paper" id="p2023">
+  <div class="paper-header">
+    <span class="toc-year y23">2023</span>
+    <span class="paper-title">Q1 – Schema Refinement</span>
+    <span class="paper-marks">20 marks</span>
+  </div>
+  <div class="paper-body">
+
+    <div class="result-box info" style="margin-bottom:20px;">
+      <div class="rb-label">Given</div>
+      <strong>Same as 2022</strong> — EMP_DEPT(ENAME, SSN, BDATE, ADD, DNUM, DNAME, DMGR)<br>
+      F = { SSN→{ENAME, BDATE, ADD, DNUM}, DNUM→{DNAME, DMGR} }
+    </div>
+    <div class="result-box warn" style="margin-bottom:20px;">
+      <div class="rb-label">Note</div>
+      Parts (a), (b), (c) are <strong>identical to 2022</strong>. See 2022 answers above. Part (d) is the same minimal cover question worth 10 marks. Full answers are given above — use the same working.
+    </div>
+
+    <div class="result-box correct">
+      <div class="rb-label">Summary of answers</div>
+      <strong>a) 3NF:</strong> ED1(SSN, ENAME, BDATE, ADD, DNUM) + ED2(DNUM, DNAME, DMGR)<br>
+      <strong>b) {SSN}⁺</strong> = {SSN, ENAME, BDATE, ADD, DNUM, DNAME, DMGR} &nbsp;·&nbsp; <strong>{DNUM}⁺</strong> = {DNUM, DNAME, DMGR}<br>
+      <strong>c) Dep-preservation:</strong> Every FD can be checked in one relation without joining. BCNF can lose it (example: R(C,S,Z), CS→Z, Z→C).<br>
+      <strong>d) Minimal G</strong> = { SSN→ENAME, SSN→BDATE, SSN→ADD, SSN→DNUM, DNUM→DNAME, DNUM→DMGR }
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════ 2024 ═══ -->
+<div class="paper" id="p2024">
+  <div class="paper-header">
+    <span class="toc-year y24">2024</span>
+    <span class="paper-title">Q1 – Schema Refinement</span>
+    <span class="paper-marks">20 marks</span>
+  </div>
+  <div class="paper-body">
+
+    <div class="result-box info" style="margin-bottom:20px;">
+      <div class="rb-label">Given</div>
+      R(StudentID, CourseID, Instructor, Room, Time) — abbreviated as (SID, CID, I, Rm, T)<br>
+      FDs: SID,CID→I &nbsp;·&nbsp; I→Rm,T &nbsp;·&nbsp; CID→Rm
+    </div>
+
+    <!-- Q a -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">a</div>
+        <div class="q-text">Find the candidate keys using the attribute closure.</div>
+        <div class="q-marks-badge">5 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <div class="code">
+<span class="cmt">// Attributes: SID, CID, I, Rm, T</span>
+<span class="cmt">// Try single attributes first:</span>
+
+{SID}⁺ = {SID} only — no FD has just SID on LHS. <span class="err">✗ not a key</span>
+{CID}⁺: CID→Rm → {CID,Rm}. Stop. <span class="err">✗ not a key</span>
+{I}⁺:   I→Rm,T → {I,Rm,T}. Stop. <span class="err">✗ not a key</span>
+
+<span class="cmt">// Try pairs:</span>
+
+{SID,CID}⁺:
+  Start: {SID,CID}
+  SID,CID→I: add I → {SID,CID,I}
+  I→Rm,T:   add Rm,T → {SID,CID,I,Rm,T}
+  CID→Rm:   Rm already in closure
+  <span class="key">{SID,CID}⁺ = ALL ATTRS</span> <span class="ok">✓ superkey!</span>
+  Is any subset a key? {SID}⁺={SID}✗  {CID}⁺={CID,Rm}✗
+  <span class="key">→ {SID,CID} is a CANDIDATE KEY</span>
+
+{SID,I}⁺:
+  I→Rm,T → {SID,I,Rm,T}. Missing CID → <span class="err">✗ not a key</span>
+
+{CID,I}⁺:
+  I→Rm,T → {CID,I,Rm,T}. Missing SID → <span class="err">✗ not a key</span>
+
+{SID,T}⁺, {SID,Rm}⁺: none reach all attrs → <span class="err">✗</span>
+
+<span class="cmt">// No other pair or single attr produces all attrs without SID,CID as the pair.</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">Candidate Key</div>
+        <strong>{StudentID, CourseID}</strong> is the only candidate key.
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q b -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">b</div>
+        <div class="q-text">If relation R is not in BCNF, convert it to BCNF.</div>
+        <div class="q-marks-badge">8 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p><strong>BCNF check:</strong> For every nontrivial FD X→Y, X must be a superkey. Superkeys are: {SID,CID} and any superset.</p>
+      <div class="code">
+<span class="cmt">// Check each FD:</span>
+
+SID,CID → I  : {SID,CID} IS a superkey ✓ <span class="ok">OK</span>
+I → Rm, T    : {I}⁺ = {I,Rm,T} ≠ all attrs → I is NOT a superkey <span class="err">✗ VIOLATION</span>
+CID → Rm     : {CID}⁺ = {CID,Rm} ≠ all attrs → NOT a superkey <span class="err">✗ VIOLATION</span>
+
+<span class="cmt">// ── Decompose for I→Rm,T (first violation) ──</span>
+<span class="cmt">// Rule: R becomes (R - Y) and (X ∪ Y)</span>
+<span class="cmt">// R = {SID,CID,I,Rm,T}, X={I}, Y={Rm,T}</span>
+
+R1 = R - {Rm,T} = <span class="key">(SID, CID, I)</span>
+R2 = {I,Rm,T}  = <span class="key">(I, Rm, T)</span>
+
+<span class="cmt">// Check R2(I,Rm,T): FD I→Rm,T. Is I a superkey of R2? {I}⁺={I,Rm,T}=all of R2 ✓ BCNF</span>
+
+<span class="cmt">// Check R1(SID,CID,I): FDs applicable: SID,CID→I</span>
+<span class="cmt">// Is {SID,CID} a superkey of R1? {SID,CID,I} = all of R1 ✓ BCNF</span>
+
+<span class="cmt">// What about CID→Rm? Rm is now in R2, not R1. CID is not in R2.</span>
+<span class="cmt">// CID→Rm is LOST — not preserved in any single relation. ← Dep-preservation issue</span>
+      </div>
+      <div class="result-box correct">
+        <div class="rb-label">BCNF Decomposition</div>
+        <strong>R1: ENROLLMENT(<u>StudentID, CourseID</u>, Instructor)</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;FD: StudentID,CourseID → Instructor ✓<br><br>
+        <strong>R2: INSTRUCTOR_SCHEDULE(<u>Instructor</u>, Room, Time)</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;FD: Instructor → Room, Time ✓<br><br>
+        Both R1 and R2 are in BCNF. Note: FD CourseID→Room is <strong>not preserved</strong> (this is a known trade-off of BCNF).
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q c -->
+    <div class="q-block">
+      <div class="q-banner">
+        <div class="q-letter">c</div>
+        <div class="q-text">S(A,B,C,D) with FDs: A→BC, B→C, A→B, AB→D, D→A. Is this set minimal? If not, find the minimal set.</div>
+        <div class="q-marks-badge">7 marks</div>
+      </div>
+      <div class="answer-label">Answer</div>
+      <p>The set is <strong>NOT minimal</strong> — A→BC has a multi-attribute RHS, violating minimality rule 1.</p>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Step 1 — Split all RHS to single attributes</div>
+            <div class="code">
+A→BC  becomes  A→B  and  A→C
+B→C   stays    B→C
+A→B   stays    A→B   <span class="cmt">// duplicate! Remove one A→B</span>
+AB→D  stays    AB→D
+D→A   stays    D→A
+
+After removing duplicate:
+{ <span class="hl">A→B, A→C, B→C, AB→D, D→A</span> }
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Step 2 — Minimize LHS of AB→D</div>
+            <div class="code">
+<span class="cmt">// Can we remove A from AB→D? Check if D ∈ {B}⁺:</span>
+{B}⁺ = {B,C}  → D ∉ {B}⁺ → <span class="ok">A is needed</span>
+
+<span class="cmt">// Can we remove B from AB→D? Check if D ∈ {A}⁺:</span>
+{A}⁺ = {A,B,C}  (using A→B, A→C, B→C)
+D ∉ {A}⁺ → <span class="ok">B is needed</span>
+
+<span class="cmt">// AB→D stays as is</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Step 3 — Remove redundant FDs</div>
+            <div class="code">
+<span class="cmt">// Check A→C: without A→C, is C ∈ {A}⁺?</span>
+{A}⁺ without A→C: A→B → {A,B}; B→C → {A,B,C}
+C ∈ {A,B,C} → <span class="err">A→C is REDUNDANT! Remove it.</span>
+
+Current set: { A→B, B→C, AB→D, D→A }
+
+<span class="cmt">// Check A→B: without A→B, is B ∈ {A}⁺?</span>
+{A}⁺ without A→B: only D→A applies if A in closure... 
+No FD fires with just A. {A}⁺ = {A}
+B ∉ {A} → <span class="ok">KEEP A→B</span>
+
+<span class="cmt">// Check B→C: without B→C, is C ∈ {B}⁺?</span>
+{B}⁺ = {B} → C ∉ {B} → <span class="ok">KEEP B→C</span>
+
+<span class="cmt">// Check AB→D: without AB→D, is D ∈ {A,B}⁺?</span>
+{A,B}⁺ = {A,B,C} (via A→B, B→C)
+D ∉ {A,B,C} → <span class="ok">KEEP AB→D</span>
+
+<span class="cmt">// Check D→A: without D→A, is A ∈ {D}⁺?</span>
+{D}⁺ = {D} → A ∉ {D} → <span class="ok">KEEP D→A</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-box correct">
+        <div class="rb-label">Minimal Cover</div>
+        <strong>G = { A→B, B→C, AB→D, D→A }</strong><br><br>
+        The redundant FD <strong>A→C</strong> was removed because it is implied by A→B and B→C (transitivity).
+      </div>
+
+      <div class="marks-tip">
+        <strong>Marks tip:</strong> For 7 marks you must show all 3 steps explicitly. Even if the answer is short, write out each step header and show the attribute closure computation that proves each decision.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end main -->
+</body>
+</html>
