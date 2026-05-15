@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schema Refinement – Study Notes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --ink: #1a1a18;
+    --ink2: #4a4840;
+    --ink3: #7a7570;
+    --accent: #2d5a8e;
+    --accent-light: #e8f0f9;
+    --teal: #1a7a6e;
+    --teal-light: #e4f4f2;
+    --amber: #8a5a00;
+    --amber-light: #fef3db;
+    --red: #8a2020;
+    --red-light: #fdeaea;
+    --green: #2a6e3a;
+    --green-light: #e6f4ea;
+    --purple: #5a3a8a;
+    --purple-light: #f0eafa;
+    --border: #ddd9d0;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  .header {
+    background: var(--accent);
+    color: white;
+    padding: 48px 40px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    right: 60px; bottom: -80px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Lora', serif;
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .header-sub {
+    opacity: 0.75;
+    font-size: 14px;
+  }
+  .header-pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 20px;
+  }
+  .header-pill {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 99px;
+    padding: 3px 12px;
+    font-size: 12px;
+  }
+
+  .content { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .toc-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 12px;
+  }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .toc a:hover { text-decoration: underline; }
+
+  .section { margin-bottom: 52px; }
+  .section-num {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+  .section h2 {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 8px;
+  }
+  .section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 24px 0 10px;
+  }
+
+  p { margin-bottom: 12px; color: var(--ink2); }
+
+  .callout {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-left: 3px solid;
+  }
+  .callout-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .callout.info { background: var(--accent-light); border-color: var(--accent); }
+  .callout.info .callout-title { color: var(--accent); }
+  .callout.success { background: var(--green-light); border-color: var(--green); }
+  .callout.success .callout-title { color: var(--green); }
+  .callout.warning { background: var(--amber-light); border-color: var(--amber); }
+  .callout.warning .callout-title { color: var(--amber); }
+  .callout.danger { background: var(--red-light); border-color: var(--red); }
+  .callout.danger .callout-title { color: var(--red); }
+  .callout.purple { background: var(--purple-light); border-color: var(--purple); }
+  .callout.purple .callout-title { color: var(--purple); }
+  .callout p { margin: 0; font-size: 14px; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+  .code-block .c { color: #6c7086; }
+  .code-block .k { color: #cba6f7; }
+  .code-block .s { color: #a6e3a1; }
+  .code-block .n { color: #89dceb; }
+
+  .def-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 14px 0;
+  }
+  .def-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink3);
+    margin-bottom: 6px;
+  }
+  .def-text {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: var(--ink);
+    font-size: 15px;
+  }
+
+  .nf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .nf-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+  .nf-card.nf1 { background: var(--green-light); border-color: #b5d9be; }
+  .nf-card.nf2 { background: var(--teal-light); border-color: #a0d4cd; }
+  .nf-card.nf3 { background: var(--accent-light); border-color: #b5cfe8; }
+  .nf-card.bcnf { background: var(--purple-light); border-color: #c5b0e0; }
+  .nf-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .nf-card.nf1 .nf-label { color: var(--green); }
+  .nf-card.nf2 .nf-label { color: var(--teal); }
+  .nf-card.nf3 .nf-label { color: var(--accent); }
+  .nf-card.bcnf .nf-label { color: var(--purple); }
+  .nf-rule {
+    font-size: 13px;
+    color: var(--ink2);
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .nf-test {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    color: var(--ink);
+  }
+
+  .steps {
+    counter-reset: step;
+    margin: 16px 0;
+  }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 600; color: var(--ink); margin-bottom: 4px; font-size: 14px; }
+  .step-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  th {
+    background: var(--surface2);
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--ink);
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--bg); }
+
+  .example-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+  .example-header {
+    background: var(--surface2);
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .example-body { padding: 16px; }
+
+  .fd-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 6px 0;
+    color: var(--ink);
+  }
+  .fd-line .arrow { color: var(--accent); font-weight: 700; }
+  .fd-line .key { color: var(--green); font-weight: 700; }
+  .fd-line .nonkey { color: var(--ink2); }
+  .fd-line .comment { color: var(--ink3); font-style: italic; }
+
+  .relation-table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 12px;
+  }
+  .relation-table th {
+    background: var(--accent);
+    color: white;
+    padding: 6px 14px;
+    border: 1px solid #1e4a7a;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .relation-table th.pk { background: #1a3d6e; }
+  .relation-table td {
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    text-align: center;
+    background: white;
+  }
+
+  .axiom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .axiom-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .axiom-name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .axiom-rule {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--accent-light);
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .axiom-desc { font-size: 12px; color: var(--ink3); }
+
+  .cheatsheet {
+    background: var(--ink);
+    color: #e8e4dc;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .cheatsheet h3 { color: #f5c542; font-size: 14px; margin-bottom: 16px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .cheatsheet-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .cheatsheet-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .cs-label {
+    flex-shrink: 0;
+    width: 90px;
+    font-size: 12px;
+    color: #89b4fa;
+    font-weight: 600;
+    padding-top: 2px;
+  }
+  .cs-val { font-size: 13px; color: #cdd6f4; font-family: 'JetBrains Mono', monospace; line-height: 1.6; }
+
+  .memory-box {
+    background: var(--amber-light);
+    border: 1px solid #e0c070;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 20px 0;
+  }
+  .memory-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .memory-text { font-size: 14px; color: var(--ink); line-height: 1.7; }
+  .memory-highlight { font-weight: 700; color: var(--amber); }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 120px;
+    padding: 14px 16px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .flow-step:last-child { border-right: none; }
+  .flow-num { font-size: 11px; color: var(--ink3); margin-bottom: 4px; }
+  .flow-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--accent);
+    padding: 0 4px;
+  }
+
+  .nf-ladder {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .nf-rung {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+  }
+  .nf-rung:last-child { border-bottom: none; }
+  .nf-rung-label {
+    width: 90px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 14px 10px;
+  }
+  .nf-rung.r1 .nf-rung-label { background: var(--green-light); color: var(--green); }
+  .nf-rung.r2 .nf-rung-label { background: var(--teal-light); color: var(--teal); }
+  .nf-rung.r3 .nf-rung-label { background: var(--accent-light); color: var(--accent); }
+  .nf-rung.rb .nf-rung-label { background: var(--purple-light); color: var(--purple); }
+  .nf-rung-content {
+    flex: 1;
+    padding: 12px 16px;
+    border-left: 1px solid var(--border);
+  }
+  .nf-rung-req { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .nf-rung-detail { font-size: 12px; color: var(--ink2); line-height: 1.5; }
+  .nf-rung-ex { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--ink3); margin-top: 6px; background: var(--bg); padding: 4px 8px; border-radius: 4px; display: inline-block; }
+
+  .props-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .prop-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .prop-title { font-weight: 700; font-size: 13px; color: var(--ink); margin-bottom: 6px; }
+  .prop-body { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+
+  .exam-tip {
+    background: linear-gradient(135deg, #2d5a8e 0%, #1a4070 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 24px 0;
+  }
+  .exam-tip-title { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin-bottom: 8px; }
+  .exam-tip-body { font-size: 14px; line-height: 1.6; opacity: 0.92; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  @media (max-width: 600px) {
+    .nf-grid { grid-template-columns: 1fr 1fr; }
+    .axiom-grid { grid-template-columns: 1fr; }
+    .props-grid { grid-template-columns: 1fr; }
+    .header { padding: 32px 20px 24px; }
+    .header h1 { font-size: 24px; }
+    .flow { flex-direction: column; }
+    .flow-step { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-tag">IT5020 · Lecture 3 & 4 · Q1 Study Notes</div>
+  <h1>Schema Refinement & Normalization</h1>
+  <div class="header-sub">Complete notes with examples, algorithms, and exam-ready summaries</div>
+  <div class="header-pills">
+    <span class="header-pill">Functional Dependencies</span>
+    <span class="header-pill">1NF · 2NF · 3NF · BCNF</span>
+    <span class="header-pill">Attribute Closure</span>
+    <span class="header-pill">Minimal Cover</span>
+    <span class="header-pill">FD Equivalence</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#s1">Why Schema Refinement?</a></li>
+      <li><a href="#s2">Functional Dependencies (FDs)</a></li>
+      <li><a href="#s3">Armstrong's Axioms</a></li>
+      <li><a href="#s4">Attribute Closure (X⁺)</a></li>
+      <li><a href="#s5">Normal Forms — 1NF to BCNF</a></li>
+      <li><a href="#s6">Decomposition Properties</a></li>
+      <li><a href="#s7">Minimal Cover Algorithm</a></li>
+      <li><a href="#s8">FD Equivalence</a></li>
+      <li><a href="#s9">Worked Past Paper Example</a></li>
+      <li><a href="#s10">Quick Cheat Sheet</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section" id="s1">
+    <div class="section-num">01</div>
+    <h2>Why Schema Refinement?</h2>
+    <p>When we group too many attributes into one relation, we create <strong>redundancy</strong>, which leads to anomalies.</p>
+
+    <div class="example-box">
+      <div class="example-header">Bad design — LECTURER table</div>
+      <div class="example-body">
+        <div class="fd-line"><span class="nonkey">LECTURER(id, name, address, salary, deptno, dname, building)</span></div>
+        <p style="margin-top:10px;font-size:13px;">If the building changes for a department, we must update every lecturer row in that dept → <strong>Update Anomaly</strong><br>
+        Deleting the last lecturer removes department info → <strong>Deletion Anomaly</strong><br>
+        Can't add a dept with no lecturers → <strong>Insertion Anomaly</strong></p>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-title">Solution</div>
+      <p>Decompose into smaller relations using <strong>Normalization</strong> — a formal process based on Functional Dependencies.</p>
+    </div>
+
+    <h3>Two critical decomposition properties</h3>
+    <div class="props-grid">
+      <div class="prop-card">
+        <div class="prop-title">Lossless-Join</div>
+        <div class="prop-body">When we join the decomposed relations back, we get exactly the original relation — no spurious (fake) tuples. Required: the common attributes must be a key in at least one of the decomposed relations.</div>
+      </div>
+      <div class="prop-card">
+        <div class="prop-title">Dependency Preservation</div>
+        <div class="prop-body">Every FD in the original relation can still be checked by looking at one of the decomposed relations — no need to join first. Always achievable for 3NF, <em>not always</em> for BCNF.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section" id="s2">
+    <div class="section-num">02</div>
+    <h2>Functional Dependencies (FDs)</h2>
+
+    <div class="def-box">
+      <div class="def-label">Definition</div>
+      <div class="def-text">X → Y means: if two tuples agree on X, they must agree on Y. X <em>functionally determines</em> Y.</div>
+    </div>
+
+    <p>If SSN → ENAME, then no two rows can have the same SSN but different ENAME.</p>
+
+    <div class="example-box">
+      <div class="example-header">EMP_DEPT example — understanding FDs</div>
+      <div class="example-body">
+        <table class="relation-table">
+          <tr>
+            <th class="pk">SSN</th><th>ENAME</th><th>BDATE</th><th>ADDR</th><th>DNUM</th><th>DNAME</th><th>DMGR</th>
+          </tr>
+          <tr><td>101</td><td>Alice</td><td>1990</td><td>Colombo</td><td>D1</td><td>IT</td><td>Bob</td></tr>
+          <tr><td>102</td><td>Carol</td><td>1988</td><td>Kandy</td><td>D1</td><td>IT</td><td>Bob</td></tr>
+          <tr><td>103</td><td>Dave</td><td>1995</td><td>Galle</td><td>D2</td><td>HR</td><td>Eve</td></tr>
+        </table>
+        <div class="fd-line">SSN <span class="arrow">→</span> <span class="nonkey">{ENAME, BDATE, ADDR, DNUM}</span> <span class="comment">// SSN determines employee info</span></div>
+        <div class="fd-line">DNUM <span class="arrow">→</span> <span class="nonkey">{DNAME, DMGR}</span> <span class="comment">// DNUM determines dept info — causes redundancy!</span></div>
+      </div>
+    </div>
+
+    <h3>Key terminology</h3>
+    <table>
+      <tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+      <tr><td><strong>Superkey</strong></td><td>Set of attrs that determines all others (X⁺ = all attrs)</td><td>SSN is a superkey</td></tr>
+      <tr><td><strong>Candidate Key</strong></td><td>Minimal superkey (no subset is also a superkey)</td><td>SSN</td></tr>
+      <tr><td><strong>Primary Key</strong></td><td>Chosen candidate key</td><td>SSN</td></tr>
+      <tr><td><strong>Prime Attribute</strong></td><td>Member of any candidate key</td><td>SSN</td></tr>
+      <tr><td><strong>Nonprime Attribute</strong></td><td>Not in any candidate key</td><td>ENAME, DNAME…</td></tr>
+      <tr><td><strong>F⁺ (closure of F)</strong></td><td>All FDs implied by F</td><td>SSN→DNAME (implied)</td></tr>
+    </table>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section" id="s3">
+    <div class="section-num">03</div>
+    <h2>Armstrong's Axioms</h2>
+    <p>These 3 rules let you infer all implied FDs. They are <em>sound</em> (produce only valid FDs) and <em>complete</em> (can derive all valid FDs).</p>
+
+    <div class="axiom-grid">
+      <div class="axiom-card">
+        <div class="axiom-name">Reflexivity</div>
+        <div class="axiom-rule">If Y ⊆ X, then X → Y</div>
+        <div class="axiom-desc">An attribute always determines itself or a subset. e.g. {A,B} → A</div>
+      </div>
+      <div class="axiom-card">
+        <div class="axiom-name">Augmentation</div>
+        <div class="axiom-rule">X→Y implies XZ→YZ</div>
+        <div class="axiom-desc">Adding same attrs to both sides keeps FD valid. e.g. A→B means AC→BC</div>
+      </div>
+      <div class="axiom-card">
+        <div class="axiom-name">Transitivity</div>
+        <div class="axiom-rule">X→Y &amp; Y→Z implies X→Z</div>
+        <div class="axiom-desc">Chain FDs together. e.g. SSN→DNUM, DNUM→DNAME → SSN→DNAME</div>
+      </div>
+    </div>
+
+    <h3>Additional derived rules (from the axioms)</h3>
+    <table>
+      <tr><th>Rule</th><th>Statement</th><th>Example</th></tr>
+      <tr><td><strong>Union</strong></td><td>X→Y and X→Z implies X→YZ</td><td>SSN→ENAME, SSN→BDATE → SSN→{ENAME,BDATE}</td></tr>
+      <tr><td><strong>Decomposition</strong></td><td>X→YZ implies X→Y and X→Z</td><td>SSN→{ENAME,BDATE} → SSN→ENAME and SSN→BDATE</td></tr>
+    </table>
+
+    <div class="memory-box">
+      <div class="memory-title">Memory trick — RAT</div>
+      <div class="memory-text">
+        <span class="memory-highlight">R</span>eflexivity · <span class="memory-highlight">A</span>ugmentation · <span class="memory-highlight">T</span>ransitivity<br>
+        "A RAT infers all FDs"
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section" id="s4">
+    <div class="section-num">04</div>
+    <h2>Attribute Closure (X⁺)</h2>
+
+    <div class="def-box">
+      <div class="def-label">Definition</div>
+      <div class="def-text">X⁺ is the set of all attributes that X can functionally determine (using the given FDs). If X⁺ contains all attributes → X is a superkey.</div>
+    </div>
+
+    <h3>Algorithm to compute X⁺</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Start</div>
+          <div class="step-desc">Set closure = X (just the starting attributes)</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Repeat</div>
+          <div class="step-desc">For every FD U→V in F: if U ⊆ closure, then add V to closure</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Stop</div>
+          <div class="step-desc">When no more attributes can be added. The closure is X⁺.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="example-box">
+      <div class="example-header">Worked example — EMP_DEPT</div>
+      <div class="example-body">
+        <p style="font-size:13px;margin-bottom:10px;">F = { SSN → {ENAME, BDATE, ADDR, DNUM}, DNUM → {DNAME, DMGR} }</p>
+
+        <p style="font-size:13px;font-weight:600;margin-bottom:6px;">Compute {SSN}⁺:</p>
+        <div class="fd-line">Start: closure = {SSN}</div>
+        <div class="fd-line">Apply SSN→{ENAME,BDATE,ADDR,DNUM}: closure = {SSN, ENAME, BDATE, ADDR, DNUM}</div>
+        <div class="fd-line">Apply DNUM→{DNAME,DMGR}: closure = {SSN, ENAME, BDATE, ADDR, DNUM, DNAME, DMGR}</div>
+        <div class="fd-line" style="background:var(--green-light);"><span class="key">{SSN}⁺ = {SSN, ENAME, BDATE, ADDR, DNUM, DNAME, DMGR} → SSN is the key!</span></div>
+
+        <p style="font-size:13px;font-weight:600;margin:14px 0 6px;">Compute {DNUM}⁺:</p>
+        <div class="fd-line">Start: closure = {DNUM}</div>
+        <div class="fd-line">Apply DNUM→{DNAME,DMGR}: closure = {DNUM, DNAME, DMGR}</div>
+        <div class="fd-line" style="background:var(--accent-light);"><span style="color:var(--accent);">{DNUM}⁺ = {DNUM, DNAME, DMGR} → DNUM is NOT a key (doesn't cover all attrs)</span></div>
+      </div>
+    </div>
+
+    <div class="exam-tip">
+      <div class="exam-tip-title">Exam tip — finding candidate keys</div>
+      <div class="exam-tip-body">To find ALL candidate keys: try each attribute (and combinations) using attribute closure. If X⁺ = all attributes, X is a superkey. If no proper subset of X is also a superkey, then X is a candidate key. Start with single attributes, then pairs.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section" id="s5">
+    <div class="section-num">05</div>
+    <h2>Normal Forms — 1NF to BCNF</h2>
+
+    <p>Normal forms are levels of "goodness" of a schema. Higher = less redundancy.</p>
+
+    <div class="nf-ladder">
+      <div class="nf-rung r1">
+        <div class="nf-rung-label">1NF</div>
+        <div class="nf-rung-content">
+          <div class="nf-rung-req">All attribute domains must be atomic (indivisible)</div>
+          <div class="nf-rung-detail">No multi-valued attributes, no repeating groups. Every cell holds a single value.</div>
+          <div class="nf-rung-ex">FAIL: phone = {0771234, 0112345} → PASS: separate rows per phone</div>
+        </div>
+      </div>
+      <div class="nf-rung r2">
+        <div class="nf-rung-label">2NF</div>
+        <div class="nf-rung-content">
+          <div class="nf-rung-req">1NF + No partial dependency on any candidate key</div>
+          <div class="nf-rung-detail">Every non-prime attribute must depend on the <em>whole</em> key, not just part of it. Only relevant when key is composite.</div>
+          <div class="nf-rung-ex">EMP_PROJ(NIC, PNUM, HOURS, ENAME, PNAME) — ENAME depends only on NIC (partial!)</div>
+        </div>
+      </div>
+      <div class="nf-rung r3">
+        <div class="nf-rung-label">3NF</div>
+        <div class="nf-rung-content">
+          <div class="nf-rung-req">2NF + No transitive dependency on any key</div>
+          <div class="nf-rung-detail">No non-prime attribute depends on another non-prime attribute. SSN→DNUM→DNAME is a transitive dependency — remove it.</div>
+          <div class="nf-rung-ex">EMP_DEPT → decompose into EMP(SSN,ENAME,BDATE,ADDR,DNUM) + DEPT(DNUM,DNAME,DMGR)</div>
+        </div>
+      </div>
+      <div class="nf-rung rb">
+        <div class="nf-rung-label">BCNF</div>
+        <div class="nf-rung-content">
+          <div class="nf-rung-req">For every nontrivial FD X→A, X must be a superkey</div>
+          <div class="nf-rung-detail">Stricter than 3NF. If any determinant is not a superkey, decompose. May lose dependency preservation.</div>
+          <div class="nf-rung-ex">CSZ: CS→Z (CS is key ✓), Z→C (Z is NOT a superkey ✗) → violates BCNF</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nf-grid">
+      <div class="nf-card nf1">
+        <div class="nf-label">1NF test</div>
+        <div class="nf-rule">Are all values atomic? No lists, no sets?</div>
+        <div class="nf-test">Fix: split multi-values into rows</div>
+      </div>
+      <div class="nf-card nf2">
+        <div class="nf-label">2NF test</div>
+        <div class="nf-rule">Does every non-prime attr need the <em>full</em> composite key?</div>
+        <div class="nf-test">Fix: split partial deps into new table</div>
+      </div>
+      <div class="nf-card nf3">
+        <div class="nf-label">3NF test</div>
+        <div class="nf-rule">Does any non-prime attr depend on another non-prime?</div>
+        <div class="nf-test">Fix: move transitive deps to new table</div>
+      </div>
+      <div class="nf-card bcnf">
+        <div class="nf-label">BCNF test</div>
+        <div class="nf-rule">For every X→Y (non-trivial), is X a superkey?</div>
+        <div class="nf-test">Fix: decompose into R-Y and XY</div>
+      </div>
+    </div>
+
+    <div class="example-box">
+      <div class="example-header">Full normalization walkthrough — EMP_DEPT</div>
+      <div class="example-body">
+        <p style="font-size:13px;font-weight:600;">Starting relation:</p>
+        <div class="fd-line">EMP_DEPT(SSN, ENAME, BDATE, ADDR, DNUM, DNAME, DMGR)</div>
+        <div class="fd-line">F = { SSN → {ENAME, BDATE, ADDR, DNUM}, DNUM → {DNAME, DMGR} }</div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:14px;">1NF check: ✓ All values are atomic</p>
+        <p style="font-size:13px;font-weight:600;margin-top:8px;">2NF check: Key = SSN (single attr) → No partial dependency possible ✓</p>
+        <p style="font-size:13px;font-weight:600;margin-top:8px;">3NF check: SSN → DNUM → DNAME is TRANSITIVE ✗ → Decompose!</p>
+
+        <div style="margin-top:12px;">
+          <div class="fd-line" style="background:var(--green-light);">ED1: EMP(<span class="key">SSN</span>, ENAME, BDATE, ADDR, DNUM)</div>
+          <div class="fd-line" style="background:var(--green-light);">ED2: DEPT(<span class="key">DNUM</span>, DNAME, DMGR)</div>
+        </div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:14px;">BCNF check on ED1: SSN→{ENAME,BDATE,ADDR,DNUM} — SSN is the key ✓</p>
+        <p style="font-size:13px;font-weight:600;">BCNF check on ED2: DNUM→{DNAME,DMGR} — DNUM is the key ✓</p>
+        <p style="font-size:13px;color:var(--green);font-weight:700;margin-top:8px;">Both ED1 and ED2 are in BCNF!</p>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <div class="callout-title">BCNF vs 3NF — key difference for exam</div>
+      <p>3NF is always dependency-preserving. BCNF may NOT be dependency-preserving. If asked why BCNF can fail dependency preservation, use example: R(C,S,Z), CS→Z, Z→C — decomposing loses CS→Z.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="section" id="s6">
+    <div class="section-num">06</div>
+    <h2>Decomposition Properties</h2>
+
+    <table>
+      <tr><th>Property</th><th>3NF</th><th>BCNF</th></tr>
+      <tr><td>Lossless-join guaranteed?</td><td>✓ Yes</td><td>✓ Yes</td></tr>
+      <tr><td>Dependency preserving?</td><td>✓ Always</td><td>✗ Not always</td></tr>
+      <tr><td>Redundancy eliminated?</td><td>Partial</td><td>Complete</td></tr>
+    </table>
+
+    <div class="callout danger">
+      <div class="callout-title">Lossless-join test</div>
+      <p>Decomposition of R into X and Y is lossless if: the attributes common to X and Y form a key in X or in Y. If this holds → no spurious tuples when joining back.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="section" id="s7">
+    <div class="section-num">07</div>
+    <h2>Minimal Cover Algorithm</h2>
+
+    <div class="def-box">
+      <div class="def-label">Definition</div>
+      <div class="def-text">A minimal cover G for F is an equivalent set of FDs where: (1) closure of G = closure of F, (2) every RHS has a single attribute, (3) no FD or LHS attribute can be removed while preserving the closure.</div>
+    </div>
+
+    <h3>3-step algorithm</h3>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Split RHS — put every FD in standard form</div>
+          <div class="step-desc">Each FD must have exactly ONE attribute on the right side.<br>
+          e.g. A→BC becomes A→B and A→C</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Minimize LHS — remove redundant attributes from LHS</div>
+          <div class="step-desc">For each FD AB→C, check if A→C already holds (i.e. if C ∈ {A}⁺). If yes, remove B from LHS.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Remove redundant FDs</div>
+          <div class="step-desc">For each FD X→A, check if A ∈ X⁺ using the <em>remaining</em> FDs (excluding this one). If yes, this FD is redundant — remove it.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="example-box">
+      <div class="example-header">Worked example — finding minimal cover</div>
+      <div class="example-body">
+        <p style="font-size:13px;font-weight:600;margin-bottom:8px;">F = { SSN → {ENAME, BDATE, ADDR, DNUM}, DNUM → {DNAME, DMGR} }</p>
+
+        <p style="font-size:13px;font-weight:600;">Step 1 — Split RHS:</p>
+        <div class="fd-line">SSN → ENAME, SSN → BDATE, SSN → ADDR, SSN → DNUM, DNUM → DNAME, DNUM → DMGR</div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:10px;">Step 2 — Minimize LHS: all LHS are single attributes → no change</p>
+
+        <p style="font-size:13px;font-weight:600;margin-top:10px;">Step 3 — Remove redundant FDs:</p>
+        <div class="fd-line">Check SSN→ENAME: is ENAME ∈ {SSN}⁺ without this FD? Only from DNUM→... No. Keep it.</div>
+        <div class="fd-line"><span class="comment">// Repeat for each FD — none are redundant here</span></div>
+
+        <div class="fd-line" style="background:var(--green-light);margin-top:10px;">
+          <span class="key">Minimal cover G = { SSN→ENAME, SSN→BDATE, SSN→ADDR, SSN→DNUM, DNUM→DNAME, DNUM→DMGR }</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="section" id="s8">
+    <div class="section-num">08</div>
+    <h2>FD Equivalence</h2>
+
+    <p>Two sets F and G are equivalent if F⁺ = G⁺. To prove this, show both directions:</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Prove F is covered by G</div>
+          <div class="step-desc">For every FD X→Y in F, compute X⁺ using only G. Check that Y ⊆ X⁺.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Prove G is covered by F</div>
+          <div class="step-desc">For every FD X→Y in G, compute X⁺ using only F. Check that Y ⊆ X⁺.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="example-box">
+      <div class="example-header">Worked example — 2018 past paper style</div>
+      <div class="example-body">
+        <div class="fd-line">F = {A→C, AC→D, E→AD, E→H}</div>
+        <div class="fd-line">G = {A→CD, E→AH}</div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:12px;">Prove G covered by F (compute using F):</p>
+        <div class="fd-line">{A}⁺ w.r.t. F = {A, C, D} → covers A→CD in G ✓</div>
+        <div class="fd-line">{E}⁺ w.r.t. F = {E, A, D, H, C} → covers E→AH in G ✓</div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:12px;">Prove F covered by G (compute using G):</p>
+        <div class="fd-line">{A}⁺ w.r.t. G = {A, C, D} → covers A→C in F ✓</div>
+        <div class="fd-line">{A,C}⁺ w.r.t. G = {A, C, D} → covers AC→D in F ✓</div>
+        <div class="fd-line">{E}⁺ w.r.t. G = {E, A, H, C, D} → covers E→AD and E→H in F ✓</div>
+
+        <div class="fd-line" style="background:var(--green-light);margin-top:10px;"><span class="key">F and G are equivalent! ✓</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 9 -->
+  <div class="section" id="s9">
+    <div class="section-num">09</div>
+    <h2>Worked Past Paper Example (2023)</h2>
+
+    <p>R(StudentID, CourseID, Instructor, Room, Time) with FDs:</p>
+    <div class="fd-line">StudentID, CourseID <span class="arrow">→</span> Instructor</div>
+    <div class="fd-line">Instructor <span class="arrow">→</span> Room, Time</div>
+    <div class="fd-line">CourseID <span class="arrow">→</span> Room</div>
+
+    <h3>a) Find candidate keys</h3>
+    <div class="example-box">
+      <div class="example-header">Attribute closure computation</div>
+      <div class="example-body">
+        <div class="fd-line">Try {StudentID, CourseID}⁺:</div>
+        <div class="fd-line">Start: {StudentID, CourseID}</div>
+        <div class="fd-line">Apply SID,CID→Instructor: {StudentID, CourseID, Instructor}</div>
+        <div class="fd-line">Apply Instructor→Room,Time: {StudentID, CourseID, Instructor, Room, Time}</div>
+        <div class="fd-line" style="background:var(--green-light);"><span class="key">{StudentID, CourseID}⁺ = ALL attributes → Candidate Key!</span></div>
+        <div class="fd-line" style="margin-top:8px;">No single attribute gives all attrs → {StudentID, CourseID} is the only candidate key.</div>
+      </div>
+    </div>
+
+    <h3>b) Convert to BCNF</h3>
+    <div class="example-box">
+      <div class="example-header">BCNF decomposition</div>
+      <div class="example-body">
+        <p style="font-size:13px;margin-bottom:8px;">Check each FD — is the LHS a superkey?</p>
+        <div class="fd-line">SID,CID → Instructor: {SID,CID} is a superkey ✓ OK</div>
+        <div class="fd-line">Instructor → Room,Time: Instructor is NOT a superkey ✗ <span class="comment">// BCNF violation!</span></div>
+        <div class="fd-line">CourseID → Room: CourseID is NOT a superkey ✗ <span class="comment">// BCNF violation!</span></div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:12px;">Decompose for Instructor→Room,Time:</p>
+        <div class="fd-line" style="background:var(--green-light);">R1: INSTRUCTOR_INFO(<span class="key">Instructor</span>, Room, Time)</div>
+        <div class="fd-line" style="background:var(--green-light);">R2: ENROLLMENT(<span class="key">StudentID, CourseID</span>, Instructor)</div>
+        <p style="font-size:13px;margin-top:8px;">Check R2 — only FD is {SID,CID}→Instructor, {SID,CID} is key ✓ BCNF!</p>
+        <p style="font-size:13px;">Note: CourseID→Room is now lost (not preserved in any single relation) — BCNF is not dep-preserving here.</p>
+      </div>
+    </div>
+
+    <h3>c) Minimal FD set</h3>
+    <div class="example-box">
+      <div class="example-header">Finding minimal cover for S(A,B,C,D)</div>
+      <div class="example-body">
+        <div class="fd-line">Given: A→BC, B→C, A→B, AB→D, D→A</div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:8px;">Step 1 — Split RHS:</p>
+        <div class="fd-line">A→B, A→C, B→C, A→B, AB→D, D→A</div>
+        <div class="fd-line">Remove duplicate A→B: A→B, A→C, B→C, AB→D, D→A</div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:8px;">Step 2 — Minimize LHS of AB→D:</p>
+        <div class="fd-line">Is D ∈ {A}⁺? {A}⁺ = {A,B,C} — D not included → B is needed</div>
+        <div class="fd-line">Is D ∈ {B}⁺? {B}⁺ = {B,C} — D not included → A is needed → AB→D stays</div>
+
+        <p style="font-size:13px;font-weight:600;margin-top:8px;">Step 3 — Remove redundant FDs:</p>
+        <div class="fd-line">Check A→C: is C ∈ {A}⁺ without A→C? {A}⁺ = {A,B,C} (via A→B, B→C) ✓ → A→C is redundant! Remove.</div>
+        <div class="fd-line" style="background:var(--green-light);">Minimal cover = { A→B, B→C, AB→D, D→A }</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 10 -->
+  <div class="section" id="s10">
+    <div class="section-num">10</div>
+    <h2>Quick Cheat Sheet</h2>
+
+    <div class="cheatsheet">
+      <h3>Schema Refinement — exam-ready reference</h3>
+
+      <div class="cheatsheet-row">
+        <div class="cs-label">1NF</div>
+        <div class="cs-val">All values atomic (no lists/sets)</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">2NF</div>
+        <div class="cs-val">1NF + no partial dependency on any candidate key<br>(only matters with composite keys)</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">3NF</div>
+        <div class="cs-val">2NF + no transitive dependency<br>(nonprime attr must not depend on another nonprime)</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">BCNF</div>
+        <div class="cs-val">For every nontrivial X→A, X must be a superkey<br>(BCNF ⊂ 3NF — stricter; may lose dep-preservation)</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">X⁺ algo</div>
+        <div class="cs-val">closure=X; while change: if U⊆closure add V for each U→V</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">Min cover</div>
+        <div class="cs-val">1) Split RHS → single attr<br>2) Minimize LHS<br>3) Remove redundant FDs</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">Equivalence</div>
+        <div class="cs-val">Show F covered by G AND G covered by F (use X⁺ both ways)</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">Lossless</div>
+        <div class="cs-val">R1 ∩ R2 must be a key of R1 or R2</div>
+      </div>
+      <div class="cheatsheet-row">
+        <div class="cs-label">Dep-pres</div>
+        <div class="cs-val">Every FD in F can be checked in one relation (no join needed)<br>3NF: always possible · BCNF: not always</div>
+      </div>
+    </div>
+
+    <div class="memory-box">
+      <div class="memory-title">Memory trick — normal form order</div>
+      <div class="memory-text">
+        "<span class="memory-highlight">A</span>tomic values → <span class="memory-highlight">N</span>o partial → <span class="memory-highlight">N</span>o transitive → <span class="memory-highlight">S</span>uperkey only"<br>
+        1NF → 2NF → 3NF → BCNF<br><br>
+        Each step <strong>builds on</strong> the previous. BCNF is the strictest but trades away dependency preservation.
+      </div>
+    </div>
+
+    <div class="exam-tip">
+      <div class="exam-tip-title">Marks breakdown — what to write in Q1</div>
+      <div class="exam-tip-body">
+        <strong>3NF conversion (2–4 marks):</strong> Identify transitive deps, decompose, show resulting relations clearly.<br><br>
+        <strong>Attribute closure (4 marks):</strong> Show every step of the algorithm — don't skip! Write closure = {} at each iteration.<br><br>
+        <strong>Dependency preservation (4 marks):</strong> Define it, then show an example of BCNF failing (e.g. R(C,S,Z), CS→Z, Z→C).<br><br>
+        <strong>Minimal cover (7–10 marks):</strong> Do all 3 steps explicitly. Prove equivalence by computing X⁺ both ways.
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
